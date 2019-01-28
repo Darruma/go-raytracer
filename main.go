@@ -1,11 +1,17 @@
 package main
 
+
 import ("fmt"
         ."go-raytracer/geometry"
 )
 func main() {
-     vec := Vector3{X:10.2,Y:3.5,Z:5.2}
-     fmt.Println(vec.X)
-     fmt.Println(vec.Y)
-     fmt.Println(vec.Z)
+     var width int = 1920;
+     var height int= 1080;
+     buffer := make([]Vector3,width * height)
+     fmt.Println(buffer)
+     render()
+}
+
+func render() {
+  fmt.Println("Rendering")
 }
