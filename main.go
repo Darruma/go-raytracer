@@ -1,16 +1,11 @@
 package main
 
-import "fmt"
-
-type Vector3 struct {
-     x float32
-     y float32
-     z float32
-}
-
+import ("fmt"
+        ."go-raytracer/geometry"
+)
 func main() {
-     vec := Vector3{x:10.2,y:3.5,z:5.2}
-     fmt.Println(vec.x)
-     fmt.Println(vec.y)
-     fmt.Println(vec.z)
+     vec := Vector3{X:10.2,Y:3.5,Z:5.2}
+     fmt.Println(vec.X)
+     fmt.Println(vec.Y)
+     fmt.Println(vec.Z)
 }
