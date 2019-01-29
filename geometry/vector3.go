@@ -12,6 +12,10 @@ func (v Vector3) Dot(w Vector3) float64 {
   return v.X * w.X + v.Y * w.Y + v.Z  * w.Y
 }
 
+func (v Vector3) Cross(w Vector3) Vector3 {
+  return Vector3{X:v.Y * w.Z - v.X * w.Y, Y:v.Z * w.X - v.X * w.Z,Z:v.X * w.Y - v.Y * w.X}
+}
+
 func (v Vector3) Distance(w Vector3) float64 {
     return v.Subtract(w).Length()
 }
