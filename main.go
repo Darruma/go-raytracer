@@ -5,7 +5,6 @@ import (
 	. "go-raytracer/geometry"
   "os"
   "strconv"
-  "fmt"
 )
 
 func main() {
@@ -42,7 +41,6 @@ func render() {
        var ray_y float64 =-(2*(float64(j) + 0.5)/float64(height) - 1)*math.Tan(fov/2)
        var direction Vector3 = Vector3{ray_x,ray_y,-1}.Normalise()
        var pixel Material = cast_ray(Ray{Vector3{0,0,0},direction}, sp)
-       fmt.Println(pixel)
        buffer[j + i * width] = pixel
        _,err = file.WriteString(strconv.Itoa(pixel.R) + " " + strconv.Itoa(pixel.G) + " " + strconv.Itoa(pixel.B) +"\n")
       check(err)
