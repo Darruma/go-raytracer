@@ -19,7 +19,7 @@ func check(e error ) {
 }
 func cast_ray (ray Ray , s Sphere) Material {
   if s.Intersect(ray) == false {
-      return Material{40,40,40}
+      return Material{65,70,212}
   }
   return Material{0,0,0}
 
