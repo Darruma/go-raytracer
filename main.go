@@ -29,7 +29,7 @@ func render() {
  var width int = 1920
  var height int = 1080
  var buffer = make([]Material, width*height)
- sp := Sphere{Vector3{3, 3, 3}, 5}
+ sp := Sphere{Vector3{10,23, -12}, 5}
  file, err := os.OpenFile("output.ppm", os.O_CREATE|os.O_WRONLY, 0644)
  _,err2 := file.WriteString("P3\n" +strconv.Itoa(width) + " " + strconv.Itoa(height) + "\n255\n")
  check(err)
