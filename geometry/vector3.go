@@ -9,7 +9,7 @@ type Vector3 struct {
 }
 
 func (v Vector3) Dot(w Vector3) float64 {
-  return v.X * w.X + v.Y * w.Y + v.Z  * w.Y
+  return v.X * w.X + v.Y * w.Y + v.Z  * w.Z
 }
 
 func (v Vector3) Cross(w Vector3) Vector3 {

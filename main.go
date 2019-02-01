@@ -5,6 +5,7 @@ import (
 	. "go-raytracer/geometry"
   "os"
   "strconv"
+  "fmt"
 )
 
 func main() {
@@ -18,7 +19,7 @@ func check(e error ) {
   }
 }
 func cast_ray (ray Ray , s Sphere) Material {
-  if s.Intersect(ray) == false {
+  if s.Intersect(ray) == true {
       return Material{65,70,212}
   }
   return Material{0,0,0}
@@ -26,10 +27,10 @@ func cast_ray (ray Ray , s Sphere) Material {
 }
 func render() {
  var fov = math.Pi/2
- var width int = 1920
- var height int = 1080
+ var width int = 1024
+ var height int = 768
  var buffer = make([]Material, width*height)
- sp := Sphere{Vector3{10,23, -12}, 5}
+ sp := Sphere{Vector3{-3,0, -16}, 1}
  file, err := os.OpenFile("output.ppm", os.O_CREATE|os.O_WRONLY, 0644)
  _,err2 := file.WriteString("P3\n" +strconv.Itoa(width) + " " + strconv.Itoa(height) + "\n255\n")
  check(err)
@@ -41,6 +42,7 @@ func render() {
        var ray_y float64 =-(2*(float64(j) + 0.5)/float64(height) - 1)*math.Tan(fov/2)
        var direction Vector3 = Vector3{ray_x,ray_y,-1}.Normalise()
        var pixel Material = cast_ray(Ray{Vector3{0,0,0},direction}, sp)
+       fmt.Println(pixel)
        buffer[j + i * width] = pixel
        _,err = file.WriteString(strconv.Itoa(pixel.R) + " " + strconv.Itoa(pixel.G) + " " + strconv.Itoa(pixel.B) +"\n")
       check(err)

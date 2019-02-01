@@ -7,21 +7,13 @@ type Sphere struct {
 }
 
 func (s Sphere) Intersect(r Ray) bool {
-     var vpc Vector3 = s.Center.Subtract(r.Origin)
-     if vpc.Dot(r.Direction) < 0  {
-        if vpc.Length() > s.Radius {
-          return false
-        } else {
-          return true
-        }
-     } else {
-      var pc = s.Center.Project(r.Origin)
-       if ( s.Center.Subtract(pc).Length() > s.Radius ) {
-            return false
-       } else  {
-          return true
-       }
-
+     L := r.Origin.Subtract(s.Center)
+     a := r.Direction.Dot(r.Direction)
+     b := 2 * r.Direction.Dot(L)
+     c := L.Dot(L) - s.Radius * s.Radius
+     if b * b - 4 * a * c < 0  {
+             return false
      }
+     return true
 }
 
