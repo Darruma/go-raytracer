@@ -3,7 +3,8 @@ package geometry
 
 type Sphere struct {
 	Center Vector3
-	Radius float64
+        Radius float64
+        Mat Material
 }
 
 func (s Sphere) Intersect(r Ray) bool {
