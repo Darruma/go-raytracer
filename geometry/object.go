@@ -1,6 +1,6 @@
 package geometry
 
 type Object interface {
-	Intersect() bool
-
+	Intersect(Ray) (bool, float64, float64)
+	GetMaterial() Material
 }
