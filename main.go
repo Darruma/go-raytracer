@@ -9,7 +9,10 @@ import (
 
 func main() {
 	sphere := Sphere{Vector3{-3, 0, -16}, 1, Material{123, 25, 60}}
-	render(sphere)
+    sphere2 := Sphere{Vector3{-1,0,-16} ,2 ,Material{70,230,4}}
+
+    os := []Object{sphere,sphere2}
+    render(os,1024,768)
 }
 
 func check(e error) {
@@ -18,18 +21,17 @@ func check(e error) {
 	}
 }
 
-func cast_ray(ray Ray, o Object) Material {
-	intersect, _, _ := o.Intersect(ray)
-
-	if intersect {
-		return o.GetMaterial()
-	}
-	return Material{0, 0, 0}
+func cast_ray(ray Ray, o []Object) Material {
+ object, intersect := intersection(ray,o)
+ if intersect {
+   return object.GetMaterial()
+ }
+ return Material{10,10,10}
 
 }
 
-func intersection(ray Ray, objects []Object) Object {
-	var closest_dist float64 = -1
+func intersection(ray Ray, objects []Object) (Object,bool) {
+	var closest_dist float64 = math.MaxFloat64
 	var closest_object Object
 	for i := 0; i < len(objects); i++ {
 		intersect, t0, t1 := objects[i].Intersect(ray)
@@ -47,14 +49,12 @@ func intersection(ray Ray, objects []Object) Object {
 			//calculate distance from hitpoints
 		}
 	}
-	return closest_object
-}
-func render(sp Sphere) {
-	var fov = math.Pi / 2
-	var width int = 1024
-	var height int = 768
-	var buffer = make([]Material, width*height)
+	return closest_object ,closest_dist < 1000
 
+}
+func render(objects []Object,width int ,height int) {
+	var fov = math.Pi / 2
+	var buffer = make([]Material, width*height)
 	file, err := os.OpenFile("output.ppm", os.O_CREATE|os.O_WRONLY, 0644)
 	_, err2 := file.WriteString("P3\n" + strconv.Itoa(width) + " " + strconv.Itoa(height) + "\n255\n")
 	check(err)
@@ -62,14 +62,13 @@ func render(sp Sphere) {
 	defer file.Close()
 	for i := 0; i < height; i++ {
 		for j := 0; j < width; j++ {
-			var ray_x float64 = (2*(float64(i)+0.5)/float64(width) - 1) * math.Tan(fov/2) * float64(width) / float64(height)
-			var ray_y float64 = -(2*(float64(j)+0.5)/float64(height) - 1) * math.Tan(fov/2)
-			var direction Vector3 = Vector3{ray_x, ray_y, -1}.Normalise()
-			var pixel Material = cast_ray(Ray{Vector3{0, 0, 0}, direction}, sp)
+			var ray_y float64 = (2*(float64(i)+0.5)/float64(width) - 1) * math.Tan(fov/2) * float64(width) / float64(height)
+			var ray_x float64 = -(2*(float64(j)+0.5)/float64(height) - 1) * math.Tan(fov/2)
+			var direction Vector3 = Vector3{ray_x,ray_y, -1}.Normalise()
+			var pixel Material = cast_ray(Ray{Vector3{0, 0, 0}, direction}, objects)
 			buffer[j+i*width] = pixel
 		}
 	}
-
 	for k := 0; k < height; k++ {
 		for l := 0; l < width; l++ {
 			var pixel Material = buffer[l+k*width]
