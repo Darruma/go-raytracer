@@ -21,8 +21,13 @@ func check(e error) {
 }
 
 func cast_ray(ray Ray, o []Object, lights []Light) Material {
-	object, intersect := intersection(ray, o)
+	object, intersect, hit, normal := intersection(ray, o)
 	if intersect {
+		var diffuse_lighting float64
+		for j := 0; j < len(lights); j++ {
+			lightDirection := lights[i].Position.Subtract(hit).Normalise()
+			diffuse_lighting = diffuse_lighting + lightDirection.Dot(normal)
+		}
 		return object.GetMaterial()
 	}
 	return Material{10, 10, 10}
@@ -33,6 +38,7 @@ func intersection(ray Ray, objects []Object) (Object, bool, Vector3) {
 	var closest_dist float64 = math.MaxFloat64
 	var closest_object Object
 	var hit_vector Vector3
+	var normal Vector3
 	for i := 0; i < len(objects); i++ {
 		intersect, t0, t1 := objects[i].Intersect(ray)
 		//calculate hit points
@@ -51,10 +57,11 @@ func intersection(ray Ray, objects []Object) (Object, bool, Vector3) {
 			} else {
 				hit_vector = v1
 			}
+			normal = hit_vector.Subtract(objects[i].Center).Normalise()
 			//calculate distance from hitpoints
 		}
 	}
-	return closest_object, closest_dist < 1000, hit_vector
+	return closest_object, closest_dist < 1000, hit_vector, normal
 
 }
 func render(objects []Object, width int, height int, lights []Light) {
