@@ -9,10 +9,9 @@ import (
 
 func main() {
 	sphere := Sphere{Vector3{-3, 0, -16}, 1, Material{123, 25, 60}}
-    sphere2 := Sphere{Vector3{-1,0,-16} ,2 ,Material{70,230,4}}
-
-    os := []Object{sphere,sphere2}
-    render(os,1024,768)
+	sphere2 := Sphere{Vector3{-1, 0, -16}, 2, Material{70, 230, 4}}
+	os := []Object{sphere, sphere2}
+	render(os, 1024, 768, lights)
 }
 
 func check(e error) {
@@ -21,18 +20,19 @@ func check(e error) {
 	}
 }
 
-func cast_ray(ray Ray, o []Object) Material {
- object, intersect := intersection(ray,o)
- if intersect {
-   return object.GetMaterial()
- }
- return Material{10,10,10}
+func cast_ray(ray Ray, o []Object, lights []Light) Material {
+	object, intersect := intersection(ray, o)
+	if intersect {
+		return object.GetMaterial()
+	}
+	return Material{10, 10, 10}
 
 }
 
-func intersection(ray Ray, objects []Object) (Object,bool) {
+func intersection(ray Ray, objects []Object) (Object, bool, Vector3) {
 	var closest_dist float64 = math.MaxFloat64
 	var closest_object Object
+	var hit_vector Vector3
 	for i := 0; i < len(objects); i++ {
 		intersect, t0, t1 := objects[i].Intersect(ray)
 		//calculate hit points
@@ -46,13 +46,18 @@ func intersection(ray Ray, objects []Object) (Object,bool) {
 				closest_object = objects[i]
 				closest_dist = dist_i
 			}
+			if v0_dist > v1_dist {
+				hit_vector = v0
+			} else {
+				hit_vector = v1
+			}
 			//calculate distance from hitpoints
 		}
 	}
-	return closest_object ,closest_dist < 1000
+	return closest_object, closest_dist < 1000, hit_vector
 
 }
-func render(objects []Object,width int ,height int) {
+func render(objects []Object, width int, height int, lights []Light) {
 	var fov = math.Pi / 2
 	var buffer = make([]Material, width*height)
 	file, err := os.OpenFile("output.ppm", os.O_CREATE|os.O_WRONLY, 0644)
@@ -64,8 +69,8 @@ func render(objects []Object,width int ,height int) {
 		for j := 0; j < width; j++ {
 			var ray_y float64 = (2*(float64(i)+0.5)/float64(width) - 1) * math.Tan(fov/2) * float64(width) / float64(height)
 			var ray_x float64 = -(2*(float64(j)+0.5)/float64(height) - 1) * math.Tan(fov/2)
-			var direction Vector3 = Vector3{ray_x,ray_y, -1}.Normalise()
-			var pixel Material = cast_ray(Ray{Vector3{0, 0, 0}, direction}, objects)
+			var direction Vector3 = Vector3{ray_x, ray_y, -1}.Normalise()
+			var pixel Material = cast_ray(Ray{Vector3{0, 0, 0}, direction}, objects, lights)
 			buffer[j+i*width] = pixel
 		}
 	}
