@@ -8,18 +8,23 @@ type Sphere struct {
 	Mat    Vector3
 }
 
-func (s Sphere) Intersect(r Ray) (bool, Vector3, Vector3) {
+func (s Sphere) Intersect(r Ray) (bool, Vector3) {
 	L := r.Origin.Subtract(s.Center)
 	a := r.Direction.Dot(r.Direction)
 	b := 2 * r.Direction.Dot(L)
 	c := L.Dot(L) - s.Radius*s.Radius
 	determinant := b*b - 4*a*c
 	if determinant < 0 {
-		return false, Vector3{0, 0, 0}, Vector3{0, 0, 0}
+		return false, Vector3{0, 0, 0}
 	}
 	t0 := -b + math.Sqrt(determinant)/2*a
 	t1 := -b - math.Sqrt(determinant)/2*a
-	return true, r.Point(t0), r.Point(t1)
+	if r.Point(t0).Distance(r.Origin) <  r.Point(t1).Distance(r.Origin) {
+		return true, r.Point(t0)
+	} else {
+		return true,r.Point(t1)
+	}	
+	
 }
 
 func (s Sphere) GetMaterial() Vector3 {

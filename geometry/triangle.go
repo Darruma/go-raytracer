@@ -1,5 +1,7 @@
 package geometry
 
+import "math"
+
 type Triangle struct {
 	V0  Vector3
 	V1  Vector3
@@ -7,9 +9,14 @@ type Triangle struct {
 	Mat Vector3
 }
 
-func (t Triangle) Intersect(ray Ray) bool {
-	// Find point P where Ray intersects the Triangle
-	return false
+func (t Triangle) Intersect(ray Ray) (bool, Vector3) {
+	N := t.GetNormal()
+	// if ray and normal are parallel , they dont intersect
+	if math.Abs(N.Dot(ray.Direction)) < 0.001 {
+		return false,Vector3{0,0,0}
+	} 
+
+	return true,Vector3{0,0,0}
 }
 func (t Triangle) GetNormal() Vector3 {
 	A := t.V1.Subtract(t.V0)

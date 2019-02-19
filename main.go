@@ -26,7 +26,6 @@ func cast_ray(ray Ray, o []Object, lights []Light) Vector3 {
 
 	if intersect {
 	normal := object.GetNormal()
-
 		var diffuse_lighting float64
 		for j := 0; j < len(lights); j++ {
 			lightDirection := lights[j].Position.Subtract(hit).Normalise()
@@ -43,23 +42,18 @@ func intersection(ray Ray, objects []Object) (Object, bool, Vector3) {
 	var closest_object Object
 	var hit_vector Vector3
 	for i := 0; i < len(objects); i++ {
-		intersect, v0, v1 := objects[i].Intersect(ray)
+		intersect, v0 := objects[i].Intersect(ray)
 		if intersect {
-			v0_dist := v0.Distance(ray.Origin)
-			v1_dist := v1.Distance(ray.Origin)
-			dist_i := math.Min(v0_dist,v1_dist)
+			
+			dist_i := v0.Distance(ray.Origin)
 			if dist_i < closest_dist {
 				closest_object = objects[i]
 				closest_dist = dist_i
 			}
-			if v0_dist > v1_dist {
-				hit_vector = v0
-			} else {
-				hit_vector = v1
-			}
+			
 		}
 	}
-	return closest_object, closest_dist < 1000, hit_vector
+	return closest_object, closest_dist < 1000, v0
 
 }
 func render(objects []Object, width int, height int, lights []Light) {
