@@ -5,25 +5,31 @@ import "math"
 type Sphere struct {
 	Center Vector3
 	Radius float64
-	Mat    Material
+	Mat    Vector3
 }
 
-func (s Sphere) Intersect(r Ray) (bool, float64, float64) {
+func (s Sphere) Intersect(r Ray) (bool, Vector3, Vector3) {
 	L := r.Origin.Subtract(s.Center)
 	a := r.Direction.Dot(r.Direction)
 	b := 2 * r.Direction.Dot(L)
 	c := L.Dot(L) - s.Radius*s.Radius
 	determinant := b*b - 4*a*c
 	if determinant < 0 {
-		return false, 0, 0
+		return false, Vector3{0, 0, 0}, Vector3{0, 0, 0}
 	}
-
 	t0 := -b + math.Sqrt(determinant)/2*a
 	t1 := -b - math.Sqrt(determinant)/2*a
-	return true, t0, t1
+	return true, r.Point(t0), r.Point(t1)
 }
 
-func (s Sphere) GetMaterial() Material {
+func (s Sphere) GetMaterial() Vector3 {
 	return s.Mat
+}
 
+func (s Sphere) GetNormal() Vector3 {
+	return Vector3{0, 0, 0}
+}
+
+func (s Sphere) GetType() string {
+	return "Sphere"
 }
