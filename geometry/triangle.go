@@ -11,11 +11,17 @@ type Triangle struct {
 
 func (t Triangle) Intersect(ray Ray) (bool, Vector3) {
 	N := t.GetNormal()
-	// if ray and normal are parallel , they dont intersect
-	if math.Abs(N.Dot(ray.Direction)) < 0.001 {
+    Ndr := N.Dot(ray.Direction)
+    // if ray and normal are parallel , they dont intersect
+	if math.Abs(Ndr) < 0.001 {
 		return false,Vector3{0,0,0}
-	} 
-
+	}
+    D := N.Dot(V0)
+    t = (N.Dot(ray.Origin) + D) / Ndr
+    if t < 0 {
+        return false, Vector3{0,0,0}
+    }
+    Vector3 hit := ray.Point(t)
 	return true,Vector3{0,0,0}
 }
 func (t Triangle) GetNormal() Vector3 {

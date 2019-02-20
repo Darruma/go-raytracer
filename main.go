@@ -4,14 +4,17 @@ import (
 	. "go-raytracer/geometry"
 	"math"
 	"os"
+    "fmt"
 	"strconv"
 )
 
 func main() {
 	sphere := Sphere{Vector3{-3, 0, -16}, 1, Vector3{123, 25, 60}}
 	sphere2 := Sphere{Vector3{-1, 0, -16}, 2, Vector3{70, 230, 4}}
-	os := []Object{sphere, sphere2}
-	lights := []Light{}
+    sphere3 := Sphere{Vector3{-5,4,-10},3,Vector3{56,232,67}}
+    light := Light{Vector3{-6,6,7},100}
+    os := []Object{sphere, sphere2,sphere3}
+	lights := []Light{light}
 	render(os, 1024, 768, lights)
 }
 
@@ -26,12 +29,16 @@ func cast_ray(ray Ray, o []Object, lights []Light) Vector3 {
 
 	if intersect {
 	normal := object.GetNormal()
+    fmt.Println(normal)
 		var diffuse_lighting float64
 		for j := 0; j < len(lights); j++ {
-			lightDirection := lights[j].Position.Subtract(hit).Normalise()
-			diffuse_lighting = diffuse_lighting + lightDirection.Dot(normal)
+			lightDirection := lights[j].Position.Normalise().Subtract(hit).Normalise()
+			fmt.Print("light_calculation ")
+            fmt.Print(lightDirection.Dot(normal))
+            diffuse_lighting = diffuse_lighting + (lights[j].Intensity * lightDirection.Dot(normal))
+            fmt.Println(diffuse_lighting)
 		}
-		return object.GetMaterial()
+		return object.GetMaterial().Scale(diffuse_lighting)
 	}
 	return Vector3{10, 10, 10}
 
@@ -43,18 +50,16 @@ func intersection(ray Ray, objects []Object) (Object, bool, Vector3) {
 	var hit_vector Vector3
 	for i := 0; i < len(objects); i++ {
 		intersect, v0 := objects[i].Intersect(ray)
+        hit_vector = v0
 		if intersect {
-			
 			dist_i := v0.Distance(ray.Origin)
 			if dist_i < closest_dist {
 				closest_object = objects[i]
 				closest_dist = dist_i
 			}
-			
 		}
 	}
-	return closest_object, closest_dist < 1000, v0
-
+	return closest_object, closest_dist < 1000, hit_vector
 }
 func render(objects []Object, width int, height int, lights []Light) {
 	var fov = math.Pi / 2
