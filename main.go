@@ -1,19 +1,17 @@
 package main
 
 import (
+	"fmt"
 	. "go-raytracer/geometry"
 	"math"
 	"os"
-    "fmt"
 	"strconv"
 )
 
 func main() {
-	sphere := Sphere{Vector3{-3, 0, -16}, 1, Vector3{123, 25, 60}}
-	sphere2 := Sphere{Vector3{-1, 0, -16}, 2, Vector3{70, 230, 4}}
-    sphere3 := Sphere{Vector3{-5,4,-10},3,Vector3{56,232,67}}
-    light := Light{Vector3{-6,6,7},100}
-    os := []Object{sphere, sphere2,sphere3}
+	sphere := Sphere{Vector3{-1, -0.5, -10}, 3, Vector3{123, 25, 60}}
+	light := Light{Vector3{-20, 20, 20}, 0.6}
+	os := []Object{sphere}
 	lights := []Light{light}
 	render(os, 1024, 768, lights)
 }
@@ -25,32 +23,29 @@ func check(e error) {
 }
 
 func cast_ray(ray Ray, o []Object, lights []Light) Vector3 {
-	object, intersect, hit := intersection(ray, o)
-
+	object, intersect, hit, normal := intersection(ray, o)
 	if intersect {
-	normal := object.GetNormal()
-    fmt.Println(normal)
 		var diffuse_lighting float64
 		for j := 0; j < len(lights); j++ {
-			lightDirection := lights[j].Position.Normalise().Subtract(hit).Normalise()
-			fmt.Print("light_calculation ")
-            fmt.Print(lightDirection.Dot(normal))
-            diffuse_lighting = diffuse_lighting + (lights[j].Intensity * lightDirection.Dot(normal))
-            fmt.Println(diffuse_lighting)
+			lightDirection := lights[j].Position.Subtract(hit).Normalise()
+			lightNormal := lightDirection.Dot(normal)
+            diffuse_lighting += lights[j].Intensity * math.Abs(lightNormal)
 		}
+		fmt.Println(diffuse_lighting)
 		return object.GetMaterial().Scale(diffuse_lighting)
 	}
 	return Vector3{10, 10, 10}
 
 }
 
-func intersection(ray Ray, objects []Object) (Object, bool, Vector3) {
+func intersection(ray Ray, objects []Object) (Object, bool, Vector3, Vector3) {
 	var closest_dist float64 = math.MaxFloat64
 	var closest_object Object
-	var hit_vector Vector3
+	var normal Vector3
+	var v0 Vector3
+	var intersect bool
 	for i := 0; i < len(objects); i++ {
-		intersect, v0 := objects[i].Intersect(ray)
-        hit_vector = v0
+		intersect, v0, normal = objects[i].Intersect(ray)
 		if intersect {
 			dist_i := v0.Distance(ray.Origin)
 			if dist_i < closest_dist {
@@ -59,7 +54,7 @@ func intersection(ray Ray, objects []Object) (Object, bool, Vector3) {
 			}
 		}
 	}
-	return closest_object, closest_dist < 1000, hit_vector
+	return closest_object, closest_dist < 1000, v0, normal
 }
 func render(objects []Object, width int, height int, lights []Light) {
 	var fov = math.Pi / 2
@@ -81,7 +76,7 @@ func render(objects []Object, width int, height int, lights []Light) {
 	for k := 0; k < height; k++ {
 		for l := 0; l < width; l++ {
 			var pixel Vector3 = buffer[l+k*width]
-			_, err = file.WriteString(strconv.Itoa(int(pixel.X)) + " " +strconv.Itoa(int(pixel.Y)) + " " +strconv.Itoa(int(pixel.Z)) + "\n")
+			_, err = file.WriteString(strconv.Itoa(int(pixel.X)) + " " + strconv.Itoa(int(pixel.Y)) + " " + strconv.Itoa(int(pixel.Z)) + "\n")
 		}
 	}
 }
