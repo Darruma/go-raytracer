@@ -17,8 +17,8 @@ func (v Vector3) Cross(w Vector3) Vector3 {
 }
 
 func (v Vector3) Normalise() Vector3 {
-	return v.Scale(1 / v.Length())
-
+        length := v.Length()
+        return v.Scale(1/length)
 }
 func (v Vector3) Distance(w Vector3) float64 {
 	return v.Subtract(w).Length()

@@ -6,6 +6,7 @@ type Sphere struct {
 	Center Vector3
 	Radius float64
 	Mat    Vector3
+    ID string
 }
 
 func (s Sphere) Intersect(r Ray) (bool, Vector3,Vector3) {
@@ -34,6 +35,6 @@ func (s Sphere) GetMaterial() Vector3 {
 	return s.Mat
 }
 
-func (s Sphere) GetType() string {
-	return "Sphere"
+func (s Sphere) GetID() string {
+	return s.ID
 }

@@ -9,9 +9,11 @@ import (
 )
 
 func main() {
-	sphere := Sphere{Vector3{-1, -0.5, -10}, 3, Vector3{123, 25, 60}}
-	light := Light{Vector3{-20, 20, 20}, 0.6}
-	os := []Object{sphere}
+	fmt.Println("rendering")
+	sphere := Sphere{Vector3{-3, -0.5, -10}, 2, Vector3{123, 25, 60}, "sphere1"}
+	light := Light{Vector3{-20, 20, 20}, 1.5}
+	spher2 := Sphere{Vector3{-3, -7, -10}, 2, Vector3{193, 96, 29}, "sphere2"}
+	os := []Object{sphere, spher2}
 	lights := []Light{light}
 	render(os, 1024, 768, lights)
 }
@@ -23,39 +25,41 @@ func check(e error) {
 }
 
 func cast_ray(ray Ray, o []Object, lights []Light) Vector3 {
-	object, intersect, hit, normal := intersection(ray, o)
-	if intersect {
+	color, intersect, hit, normal := intersection(ray, o)
+	if intersect == true {
 		var diffuse_lighting float64
 		for j := 0; j < len(lights); j++ {
 			lightDirection := lights[j].Position.Subtract(hit).Normalise()
 			lightNormal := lightDirection.Dot(normal)
-            diffuse_lighting += lights[j].Intensity * math.Abs(lightNormal)
+			diffuse_lighting += lights[j].Intensity * math.Abs(lightNormal)
 		}
-		fmt.Println(diffuse_lighting)
-		return object.GetMaterial().Scale(diffuse_lighting)
+		return color.Scale(diffuse_lighting)
+	} else {
+		return Vector3{10, 10, 10}
 	}
-	return Vector3{10, 10, 10}
 
 }
 
-func intersection(ray Ray, objects []Object) (Object, bool, Vector3, Vector3) {
-	var closest_dist float64 = math.MaxFloat64
-	var closest_object Object
-	var normal Vector3
-	var v0 Vector3
-	var intersect bool
+func intersection(ray Ray, objects []Object) (Vector3, bool, Vector3, Vector3) {
+	object_distance := math.MaxFloat64
+    var color Vector3
+    var hit_final Vector3
+    var normal_final Vector3
 	for i := 0; i < len(objects); i++ {
-		intersect, v0, normal = objects[i].Intersect(ray)
-		if intersect {
-			dist_i := v0.Distance(ray.Origin)
-			if dist_i < closest_dist {
-				closest_object = objects[i]
-				closest_dist = dist_i
+		var dist_i float64 = 0
+		intersected, hit, normal := objects[i].Intersect(ray)
+		if intersected {
+			if dist_i < object_distance {
+                object_distance = dist_i
+                color = objects[i].GetMaterial()
+                hit_final = hit
+                normal_final = normal
 			}
 		}
 	}
-	return closest_object, closest_dist < 1000, v0, normal
+    return color , object_distance < 1000,hit_final,normal_final
 }
+
 func render(objects []Object, width int, height int, lights []Light) {
 	var fov = math.Pi / 2
 	var buffer = make([]Vector3, width*height)
