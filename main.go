@@ -10,10 +10,10 @@ import (
 
 func main() {
 	fmt.Println("rendering")
-	sphere := Sphere{Vector3{-3, -0.5, -10}, 2, Vector3{123, 25, 60}, "sphere1"}
-	light := Light{Vector3{-20, 20, 20}, 1.5}
-	spher2 := Sphere{Vector3{-3, -7, -10}, 2, Vector3{193, 96, 29}, "sphere2"}
-	os := []Object{sphere, spher2}
+	light := Light{Vector3{-20, 20, 20}, 1.1}
+  sphere := Sphere{Vector3{0,-5,-8},2.2,Vector3{60,160,59},"sphere1"}
+  spher2 := Sphere{Vector3{-3, -7, -10}, 2, Vector3{193, 96, 29}, "sphere2"}
+	os := []Object{sphere,spher2}
 	lights := []Light{light}
 	render(os, 1024, 768, lights)
 }
@@ -33,6 +33,7 @@ func cast_ray(ray Ray, o []Object, lights []Light) Vector3 {
 			lightNormal := lightDirection.Dot(normal)
 			diffuse_lighting += lights[j].Intensity * math.Abs(lightNormal)
 		}
+    fmt.Println(diffuse_lighting)
 		return color.Scale(diffuse_lighting)
 	} else {
 		return Vector3{10, 10, 10}
@@ -42,22 +43,22 @@ func cast_ray(ray Ray, o []Object, lights []Light) Vector3 {
 
 func intersection(ray Ray, objects []Object) (Vector3, bool, Vector3, Vector3) {
 	object_distance := math.MaxFloat64
-    var color Vector3
-    var hit_final Vector3
-    var normal_final Vector3
+	var color Vector3
+	var hit_final Vector3
+	var normal_final Vector3
 	for i := 0; i < len(objects); i++ {
 		var dist_i float64 = 0
 		intersected, hit, normal := objects[i].Intersect(ray)
 		if intersected {
 			if dist_i < object_distance {
-                object_distance = dist_i
-                color = objects[i].GetMaterial()
-                hit_final = hit
-                normal_final = normal
+				object_distance = dist_i
+				color = objects[i].GetMaterial()
+				hit_final = hit
+				normal_final = normal
 			}
 		}
 	}
-    return color , object_distance < 1000,hit_final,normal_final
+	return color, object_distance < 1000, hit_final, normal_final
 }
 
 func render(objects []Object, width int, height int, lights []Light) {
